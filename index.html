@@ -16,7 +16,7 @@
 
         .text {
             border: 1px solid #6c7c96;
-            min-height: 400px;
+            height: 50vh;
             box-sizing: content-box;
             margin: 0.25rem;
             border-radius: .25rem;
@@ -43,6 +43,27 @@
 </div>
 <p class="result" id="txt_result"></p>
 <script type="text/css" id="css">
+    .user {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        padding: 0.5rem;
+        background: #eeeeee;
+    }
+
+    .avatar {
+        border-radius: 50%;
+        width: 48px;
+    }
+
+    .user-info {
+        margin-left: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: #6c757d;
+    }
+
     table {
         border-top: 1px solid #ccc;
         border-left: 1px solid #ccc;
@@ -98,6 +119,8 @@
 
         let uid = localStorage.getItem("uid");
         let expire = (localStorage.getItem("expire") || 0) * 1000;
+        let username = '';
+        let nickname = '';
         if (!uid || (uid && expire < (new Date()).getTime())) {
             let hash = location.hash.substr(1);
             if (hash) {
@@ -108,6 +131,9 @@
             } else {
                 window.location = "https://twimi.cn/oauth/authorize?client_id=8f14e45fceea167a5a36dedd4bea2543&redirect_uri=" + encodeURI('https://os.twimi.cn/paper/callback.html');
             }
+        } else {
+            username = localStorage.getItem("username");
+            nickname = localStorage.getItem("nickname") || username;
         }
 
         editor.customConfig.menus = [
@@ -145,7 +171,8 @@
         btnPublish.addEventListener('click', _ => {
             let data = new FormData();
             let content = editor.txt.html();
-            let html = new Blob([`<html lang="zh"><head><meta charset="utf-8"><title>${txtTitle.value || '无标题'}</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"><style>${cssTag.innerText}</style></head><body>${content}</body></html>`], {type: "text/html"});
+            let userInfo = `<div class="user"><img class="avatar" src="https://twimi.cn/user/avatar?uid=${uid}" alt="avatar"/><div class="user-info"><div><a href="https://twimi.cn/user/detail/${username}">${nickname}</a></div><div>${(new Date()).toLocaleString()}</div></div></div>`;
+            let html = new Blob([`<html lang="zh"><head><meta charset="utf-8"><title>${txtTitle.value || '无标题'}</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"><style>${cssTag.innerText}</style></head><body><h2>${txtTitle.value || '无标题'}</h2>${userInfo}${content}</body></html>`], {type: "text/html"});
             data.append('file', html);
             fetch("https://api.globalupload.io/transport/add", {method: 'post', mode: 'cors', body: data,})
                 .then(res => res.json()).then(res => {
