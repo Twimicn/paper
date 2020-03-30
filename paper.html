@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
     <link rel="stylesheet" href="https://c.bunnies.cc/src/cappuccino.css">
     <script type="text/javascript" src="//unpkg.com/wangeditor/release/wangEditor.min.js"></script>
+    <script src="//unpkg.com/ipfs@0.40.0/dist/index.js"></script>
     <style type="text/css">
         .toolbar {
             border: 1px solid #ccc;
@@ -46,7 +47,7 @@
 <div id="editor" class="text">
 </div>
 <div style="padding: 0.25rem; ">
-    <button id="btn_publish" class="bcu btn md">发布</button>
+    <button id="btn_publish" class="bcu btn md" disabled>发布</button>
 </div>
 <p class="result" id="txt_result"></p>
 <script type="text/css" id="css">
@@ -125,9 +126,10 @@
         let cssTag = document.getElementById('css');
         let txtTitle = document.getElementById('txt_title');
         let txt_result = document.getElementById('txt_result');
+        let node = null;
 
-        let uid = localStorage.getItem(KEY + 'uid');
-        let expire = (localStorage.getItem(KEY + 'expire') || 0) * 1000;
+        let uid = localStorage.getItem(KEY + "uid");
+        let expire = (localStorage.getItem(KEY + "expire") || 0) * 1000;
         let username = '';
         let nickname = '';
         if (!uid || (uid && expire < (new Date()).getTime())) {
@@ -141,8 +143,8 @@
                 window.location = "https://twimi.cn/oauth/authorize?client_id=8f14e45fceea167a5a36dedd4bea2543&redirect_uri=" + encodeURI('https://os.twimi.cn/paper/callback.html');
             }
         } else {
-            username = localStorage.getItem(KEY + 'username');
-            nickname = localStorage.getItem(KEY + 'nickname') || username;
+            username = localStorage.getItem(KEY + "username");
+            nickname = localStorage.getItem(KEY + "nickname") || username;
         }
 
         editor.customConfig.menus = [
@@ -181,15 +183,26 @@
             let data = new FormData();
             let content = editor.txt.html();
             let userInfo = `<div class="user"><img class="avatar" src="https://twimi.cn/user/avatar?uid=${uid}" alt="avatar"/><div class="user-info"><div><a href="https://twimi.cn/user/detail/${username}">${nickname}</a></div><div>${(new Date()).toLocaleString()}</div></div></div>`;
-            let html = new Blob([`<html lang="zh"><head><meta charset="utf-8"><title>${txtTitle.value || '无标题'}</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"><style>${cssTag.innerText}</style></head><body><h2>${txtTitle.value || '无标题'}</h2>${userInfo}${content}</body></html>`], {type: "text/html"});
-            data.append('file', html);
+            let html = `<html lang="zh"><head><meta charset="utf-8"><title>${txtTitle.value || '无标题'}</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"><style>${cssTag.innerText}</style></head><body><h2>${txtTitle.value || '无标题'}</h2>${userInfo}${content}</body></html>`;
             txt_result.style.display = "none";
+            /*
             fetch("https://api.globalupload.io/transport/add", {method: 'post', mode: 'cors', body: data,})
                 .then(res => res.json()).then(res => {
                 let url = 'https://ipfs.globalupload.io/' + res.Hash;
                 txt_result.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
                 txt_result.style.display = "block";
             })
+             */
+            node.add(html).then(r => {
+                console.log(r);
+            })
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            node = await Ipfs.create({repo: 'ipfs-' + Math.random()});
+            if (node.isOnline()) {
+                btnPublish.removeAttribute('disabled')
+            }
         })
     })();
 </script>

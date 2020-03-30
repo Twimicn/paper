@@ -18,6 +18,7 @@
         }
 
         const URL = 'https://twimi.cn/api/';
+        const KEY = 'paper_';
         const HEADER = {'content-type': 'application/x-www-form-urlencoded'};
         const CLIENT_ID = '8f14e45fceea167a5a36dedd4bea2543';
         const CLIENT_SECRET = '1ef8ca7857793e8f2f3baa4b1a821dfb';
@@ -29,7 +30,7 @@
                 headers: HEADER,
                 body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&code=` + code
             }).then(r => r.json()).then(r => {
-                localStorage.setItem('expire', r.expire);
+                localStorage.setItem(KEY + 'expire', r.expire);
                 let token = r.token;
                 fetch(`${URL}user/info`, {
                     method: 'post',
@@ -37,12 +38,12 @@
                     body: `client_id=${CLIENT_ID}&token=${token}`
                 }).then(r2 => r2.json()).then(r2 => {
                     if (r2.uid && r2.uid > 0) {
-                        localStorage.setItem('uid', r2.uid);
-                        localStorage.setItem('username', r2.username);
-                        localStorage.setItem('nickname', r2.nickname);
-                        let hash = localStorage.getItem('preHash') || '';
+                        localStorage.setItem(KEY + 'uid', r2.uid);
+                        localStorage.setItem(KEY + 'username', r2.username);
+                        localStorage.setItem(KEY + 'nickname', r2.nickname);
+                        let hash = localStorage.getItem(KEY + 'pre_hash') || '';
                         if (hash) {
-                            localStorage.removeItem('preHash');
+                            localStorage.removeItem(KEY + 'pre_hash');
                         }
                         window.location = "/paper/index.html" + (hash ? ('#' + hash) : '');
                     }
