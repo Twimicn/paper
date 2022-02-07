@@ -6,8 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
     <link rel="stylesheet" href="https://c.bunnies.cc/src/cappuccino.css">
-    <script type="text/javascript" src="//unpkg.com/wangeditor/release/wangEditor.min.js"></script>
-    <script src="//unpkg.com/ipfs@0.40.0/dist/index.js"></script>
+    <script type="text/javascript" src="//unpkg.com/wangeditor@4.7.0/dist/wangEditor.min.js"></script>
     <style type="text/css">
         .toolbar {
             border: 1px solid #ccc;
@@ -147,7 +146,7 @@
             nickname = localStorage.getItem(KEY + "nickname") || username;
         }
 
-        editor.customConfig.menus = [
+        editor.config.menus = [
             'image',
             'head',
             'bold',
@@ -169,12 +168,12 @@
             'redo',
         ];
 
-        editor.customConfig.customUploadImg = function (files, insert) {
+        editor.config.customUploadImg = function (files, insert) {
             let data = new FormData();
-            data.append('file', files[0]);
-            fetch("https://api.globalupload.io/transport/add", {method: 'post', mode: 'cors', body: data,})
+            data.append('image', files[0]);
+            fetch("https://yespic.vercel.app/ipfs/upload", {method: 'post', mode: 'cors', body: data,})
                 .then(res => res.json()).then(res => {
-                insert('https://ipfs.globalupload.io/' + res.Hash);
+                insert(res.url);
             })
         };
         editor.create();
@@ -185,16 +184,10 @@
             let userInfo = `<div class="user"><img class="avatar" src="https://twimi.cn/user/avatar?uid=${uid}" alt="avatar"/><div class="user-info"><div><a href="https://twimi.cn/user/detail/${username}">${nickname}</a></div><div>${(new Date()).toLocaleString()}</div></div></div>`;
             let html = `<html lang="zh"><head><meta charset="utf-8"><title>${txtTitle.value || '无标题'}</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"><style>${cssTag.innerText}</style></head><body><h2>${txtTitle.value || '无标题'}</h2>${userInfo}${content}</body></html>`;
             txt_result.style.display = "none";
-            /*
-            fetch("https://api.globalupload.io/transport/add", {method: 'post', mode: 'cors', body: data,})
+            fetch("https://yespic.vercel.app/ipfs/write", {method: 'post', mode: 'cors', body: data,})
                 .then(res => res.json()).then(res => {
-                let url = 'https://ipfs.globalupload.io/' + res.Hash;
-                txt_result.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
+                txt_result.innerHTML = `<a href="${res.url}" target="_blank">${URL + res.url}</a>`;
                 txt_result.style.display = "block";
-            })
-             */
-            node.add(html).then(r => {
-                console.log(r);
             })
         });
 
