@@ -184,7 +184,7 @@
         btnPublish.addEventListener('click', _ => {
             let data = new FormData();
             let content = editor.txt.html();
-            let userInfo = `<div class="user"><img class="avatar" src="https://twimi.cn/user/avatar?uid=${uid}" alt="avatar"/><div class="user-info"><div><a href="https://twimi.cn/user/detail/${username}">${nickname}</a></div><div>${(new Date()).toLocaleString()}</div></div></div>`;
+            let userInfo = `<div class="user"><img class="avatar" src="https://twimi.cn/user/avatar/${uid}" alt="avatar"/><div class="user-info"><div><a href="https://twimi.cn/user/detail/${username}">${nickname}</a></div><div>${(new Date()).toLocaleString()}</div></div></div>`;
             let html = `<html lang="zh"><head><meta charset="utf-8"><title>${txtTitle.value || '无标题'}</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"><style>${cssTag.innerText}</style></head><body><h2>${txtTitle.value || '无标题'}</h2>${userInfo}${content}</body></html>`;
             data.append('content', html);
             txt_result.style.display = "none";
